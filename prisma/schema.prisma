@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum WeeklyReportStatus {
+  DRAFT
+  COMPLETED
+}
+
+enum DailyLogStatus {
+  DRAFT
+  COMPLETE
+}
+
+model User {
+  id            String         @id @default(cuid(2))
+  name          String
+  nim           String
+  email         String         @unique
+  passwordHash  String
+  scheme        String
+  partner       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  weeklyReports WeeklyReport[]
+
+  @@map("users")
+}
+
+model WeeklyReport {
+  id                String             @id @default(cuid(2))
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  weekNumber        Int
+  startDate         DateTime
+  endDate           DateTime
+  nextWeekPlan      String?
+  studentEvaluation String?
+  status            WeeklyReportStatus @default(DRAFT)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  dailyLogs         DailyLog[]
+
+  @@index([userId])
+  @@map("weekly_reports")
+}
+
+model DailyLog {
+  id               String           @id @default(cuid(2))
+  weeklyReport     WeeklyReport     @relation(fields: [weeklyReportId], references: [id], onDelete: Cascade)
+  weeklyReportId   String
+  dayNumber        Int
+  date             DateTime
+  startTime        String
+  endTime          String
+  location         String
+  status           DailyLogStatus   @default(DRAFT)
+  aiDraft          String?
+  finalDescription String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  manualActivities ManualActivity[]
+
+  @@index([weeklyReportId])
+  @@map("daily_logs")
+}
+
+model ManualActivity {
+  id          String   @id @default(cuid(2))
+  dailyLog    DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+  dailyLogId  String
+  order       Int
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([dailyLogId])
+  @@map("manual_activities")
+}
