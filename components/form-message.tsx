@@ -10,6 +10,18 @@ export function FormError({ message }: { message?: string }) {
   );
 }
 
+export function FormSuccess({ message }: { message?: string }) {
+  if (!message) return null;
+  return (
+    <p
+      role="status"
+      className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+    >
+      {message}
+    </p>
+  );
+}
+
 export function FieldErrors({
   errors,
   id,
