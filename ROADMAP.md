@@ -4,9 +4,13 @@ Phased plan for building the Internship Logbook Automation application.
 Each phase ends with a reviewable, meaningful commit. Phases build on each
 other; do not skip foundational phases.
 
-## Phase 0 — Discovery & Architecture (current)
+**Next phase: Phase 4 — AI-Assisted Description.**
 
-Status: **DONE** (this phase).
+---
+
+## Phase 0 — Discovery & Architecture
+
+Status: **DONE** (delivered with the Phase 1 commit `95acfa1`).
 
 - [x] Inspect repository, `AGENTS.md`, `docs/`.
 - [x] Reverse-engineer `docs/LOGBOOK_TEMPLATE.docx` structure.
@@ -21,6 +25,9 @@ Blockers: none.
 
 ## Phase 1 — Project Setup + Database + Authentication
 
+Status: **DONE** — commit `95acfa1` (`feat: initialize app with authentication
+and database`).
+
 Objectives
 
 - Initialize the Next.js (App Router, TypeScript, Tailwind) project.
@@ -30,65 +37,82 @@ Objectives
 
 Main tasks
 
-1. Scaffold Next.js app + Tailwind.
-2. `git init`, base `.gitignore`, `README.md` (short), `.env.example`.
-3. Prisma schema (User + Auth.js tables), `prisma migrate dev`.
-4. Auth.js v5 with Credentials provider (session/cookie handling only).
-5. **Custom registration flow**: register page/action collecting name, NIM,
-   email, password, scheme, and partner in one flow; password hashed
-   server-side (bcrypt/argon2), never stored as plaintext. Do not rely on
-   Auth.js to implement registration.
-6. Login + logout pages; auth guards (layout/route protection, `auth()`
-   helper).
+- [x] Scaffold Next.js app + Tailwind.
+- [x] `git init`, base `.gitignore`, `README.md` (short), `.env.example`.
+- [x] Prisma schema (`User`, JWT session strategy — no Auth.js tables).
+- [x] Auth.js v5 with Credentials provider (session/cookie handling only).
+- [x] **Custom registration flow**: register page/action collecting name, NIM,
+      email, password, scheme, and partner in one flow; password hashed
+      server-side (bcrypt/argon2), never stored as plaintext. Auth.js does not
+      implement registration.
+- [x] Login + logout pages; auth guards (layout/route protection, `auth()` +
+      `requireUser()` helpers).
 
-Expected output: a deployed-ready shell where users register (with full
-profile fields), log in, and sessions work.
+Output: deployed-ready shell where users register (with full profile fields),
+log in, and sessions work.
 Dependencies/blockers: PostgreSQL instance and `DATABASE_URL`, `AUTH_SECRET`.
 
 ---
 
-## Phase 2 — User Profile + Weekly Report
+## Phase 1.5 — UI/UX Refinement
+
+Status: **DONE** — commit `cd47b40` (`style: refine responsive navigation and
+form UI`).
 
 Objectives
 
-- Profile editing (name, NIM, scheme, partner).
-- Weekly report creation, listing, and current-week default.
-- Report header data (Skema, Mitra, Minggu ke, date range).
+- Polish the shared app shell and form components.
+- Responsive navigation (sidebar + bottom nav) and consistent UI primitives.
 
 Main tasks
 
-1. Profile page + update server action.
-2. `WeeklyReport` CRUD; auto-create/open current week.
-3. Report list page; week number + date range computed/validated.
-4. Basic shell UI: report workspace layout (live-weekly-report feel).
+- [x] Shared nav (desktop sidebar + mobile bottom nav), app logo, layout
+      polish.
+- [x] Reusable `ui/button.tsx` and refined form/feedback components.
+- [x] Responsive login/register/profile/dashboard/reports pages (no horizontal
+      overflow at small widths).
 
-Expected output: users can set a profile and manage weekly reports; report
-header shows scheme/partner/week/date range automatically.
+Output: consistent, responsive shell reused by all later phases.
 Dependencies/blockers: Phase 1.
 
 ---
 
-## Phase 3 — Daily Logbook + Manual Activities
+## Phase 2 — Weekly Reports + Daily Logs + Manual Activities
+
+Status: **DONE** — commit `3707097` (`feat: implement weekly reports and daily
+logs`).
 
 Objectives
 
+- Profile editing (name, NIM, scheme, partner).
+- Weekly report creation, listing, and current-week default; report header
+  data (Skema, Mitra, Minggu ke, date range).
 - Daily logs with date, working hours, location, status.
 - Manual activity input (first-class) with ordering.
 - Persistence + resume editing.
 
 Main tasks
 
-1. `DailyLog` + `ManualActivity` schema (Phase 1 schema refactor).
-2. Daily log editor: date, start/end working hours, location.
-3. Manual activity add/edit/remove within a day.
-4. Save-as-you-go; status (draft/complete); weekly progress indicator.
+- [x] Profile page + update server action.
+- [x] `WeeklyReport` CRUD; auto-create/open current week; week number + date
+      range computed/validated.
+- [x] Report list page + report workspace layout (live-weekly-report feel).
+- [x] `DailyLog` + `ManualActivity` schema (Phase 1 schema refactor).
+- [x] Daily log editor: date, start/end working hours, location.
+- [x] Manual activity add/edit/remove within a day.
+- [x] Save-as-you-go; status (draft/complete); weekly progress indicator.
 
-Expected output: users fill one day at a time and resume unfinished reports.
-Dependencies/blockers: Phase 2.
+Output: users set a profile, manage weekly reports, fill one day at a time,
+and resume unfinished reports; report header shows scheme/partner/week/date
+range automatically.
+Dependencies/blockers: Phase 1 (+ Phase 1.5).
 
 ---
 
-## Phase 4 — GitHub OAuth + Commit Integration
+## Phase 3 — GitHub OAuth + Commit Integration
+
+Status: **DONE** — commit `68ea2e0` (`feat: add optional github commit
+evidence`).
 
 Objectives
 
@@ -98,20 +122,25 @@ Objectives
 
 Main tasks
 
-1. GitHub OAuth App + `/api/github/connect` + `/api/github/callback`.
-2. Token encryption at rest (`GitHubConnection`).
-3. Repository list + cache (`Repository`), selection UI.
-4. Commit fetch + cache (`Commit`), date-range filter UI.
-5. Commit picker attaching to a daily log (`LogbookCommit`).
-6. Graceful degradation when GitHub is disconnected/unavailable.
+- [x] GitHub OAuth App + `/api/github/connect` + `/api/github/callback`.
+- [x] Token encryption at rest (`GitHubConnection`, AES-GCM via
+      `ENCRYPTION_KEY`).
+- [x] Repository list + cache (`Repository`), selection UI.
+- [x] Commit fetch + cache (`Commit`), date-range filter UI.
+- [x] Commit picker attaching to a daily log (`LogbookCommit`).
+- [x] Graceful degradation when GitHub is disconnected/unavailable; manual-only
+      flow remains fully usable.
 
-Expected output: connected users pull commits as evidence; non-connected users
-are unaffected.
-Dependencies/blockers: Phase 3; GitHub OAuth App credentials; `ENCRYPTION_KEY`.
+Output: connected users pull commits as evidence; non-connected users are
+unaffected.
+Dependencies/blockers: Phase 2; GitHub OAuth App credentials;
+`ENCRYPTION_KEY`.
 
 ---
 
-## Phase 5 — AI-Assisted Description
+## Phase 4 — AI-Assisted Description
+
+Status: **PENDING** (next).
 
 Objectives
 
@@ -131,7 +160,7 @@ Dependencies/blockers: Phase 3; LLM API key.
 
 ---
 
-## Phase 6 — Documentation Upload
+## Phase 5 — Documentation Upload
 
 Objectives
 
@@ -145,11 +174,11 @@ Main tasks
 4. Association with weekly report (+ optional daily log).
 
 Expected output: photos stored in Cloudinary and manageable per week.
-Dependencies/blockers: Phase 3; Cloudinary credentials.
+Dependencies/blockers: Phase 2; Cloudinary credentials.
 
 ---
 
-## Phase 7 — Weekly Report Preview
+## Phase 6 — Weekly Report Preview
 
 Objectives
 
@@ -163,11 +192,11 @@ Main tasks
 3. Progress/completeness summary.
 
 Expected output: users review the report as it will appear before export.
-Dependencies/blockers: Phase 3 (+ photos from Phase 6).
+Dependencies/blockers: Phase 2 (+ photos from Phase 5).
 
 ---
 
-## Phase 8 — DOCX / PDF Generation
+## Phase 7 — DOCX / PDF Generation
 
 Objectives
 
@@ -192,12 +221,12 @@ Main tasks
 
 Expected output: faithful DOCX export and usable PDF, verified against the
 template before ship.
-Dependencies/blockers: Phase 7; template constants verified against
+Dependencies/blockers: Phase 6; template constants verified against
 `LOGBOOK_TEMPLATE.docx`; PoC gate passed.
 
 ---
 
-## Phase 9 — Testing + Security Review
+## Phase 8 — Testing + Security Review
 
 Objectives
 
@@ -213,11 +242,11 @@ Main tasks
    validation, CSRF on server actions, rate limits.
 
 Expected output: passing checks; documented security posture.
-Dependencies/blockers: Phases 1–8.
+Dependencies/blockers: Phases 1–7.
 
 ---
 
-## Phase 10 — Vercel Deployment
+## Phase 9 — Vercel Deployment
 
 Objectives
 
@@ -233,4 +262,4 @@ Main tasks
 5. `.env.example` finalized; README runbook.
 
 Expected output: live production app for the user and friends.
-Dependencies/blockers: Phases 1–9; production credentials and accounts.
+Dependencies/blockers: Phases 1–8; production credentials and accounts.
