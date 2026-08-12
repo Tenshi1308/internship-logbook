@@ -23,6 +23,14 @@ export type ReportData = {
 
 const dailyLogInclude = {
   manualActivities: { orderBy: { order: "asc" as const } },
+  logbookCommits: {
+    orderBy: { commit: { committedAt: "desc" as const } },
+    include: {
+      commit: {
+        include: { repository: { select: { fullName: true } } },
+      },
+    },
+  },
 };
 
 export async function listReportsForUser(userId: string) {

@@ -21,7 +21,31 @@ async function main() {
       partner: "Lavendrie Laundry",
     },
   });
-  console.log(`SEEDED ${user.email} id=${user.id}`);
+
+  const start = new Date("2026-08-03T00:00:00Z");
+  const end = new Date("2026-08-07T00:00:00Z");
+  const report = await prisma.weeklyReport.create({
+    data: {
+      userId: user.id,
+      weekNumber: 1,
+      startDate: start,
+      endDate: end,
+      dailyLogs: {
+        create: [
+          {
+            dayNumber: 1,
+            date: start,
+            startTime: "08:00",
+            endTime: "16:00",
+            location: "WFH",
+            status: "COMPLETE",
+          },
+        ],
+      },
+    },
+  });
+
+  console.log(`SEEDED ${user.email} id=${user.id} report=${report.id}`);
   await prisma.$disconnect();
 }
 

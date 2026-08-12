@@ -7,13 +7,35 @@ import ReportInfoForm from "@/components/report-info-form";
 import DayFieldsForm from "@/components/day-fields-form";
 import ActivityList from "@/components/activity-list";
 import DeleteReportButton from "@/components/delete-report-button";
+import CommitEvidence, { type AttachedCommit } from "@/components/commit-evidence";
 import { requireUser } from "@/lib/session";
 import { getReportForUser } from "@/lib/reports";
+import { getConnectionForUser } from "@/lib/github-data";
 import { daysBetween, formatDayShort, toDateOnly, weekdayOf } from "@/lib/dates";
 
 export const metadata: Metadata = {
   title: "Detail Laporan | Internship Logbook",
 };
+
+function toAttachedCommit(
+  logbookCommit: {
+    commit: {
+      id: string;
+      sha: string;
+      message: string;
+      committedAt: Date;
+      repository: { fullName: string };
+    };
+  }
+): AttachedCommit {
+  return {
+    id: logbookCommit.commit.id,
+    sha: logbookCommit.commit.sha,
+    message: logbookCommit.commit.message,
+    committedAt: logbookCommit.commit.committedAt.toISOString(),
+    repositoryFullName: logbookCommit.commit.repository.fullName,
+  };
+}
 
 export default async function ReportDetailPage({
   params,
@@ -27,6 +49,8 @@ export default async function ReportDetailPage({
   if (!report) {
     notFound();
   }
+
+  const connection = await getConnectionForUser(user.id);
 
   const logByDate = new Map(
     report.dailyLogs.map((log) => [toDateOnly(log.date), log])
@@ -93,6 +117,15 @@ export default async function ReportDetailPage({
                     dateKey={dateKey}
                     dailyLogId={log?.id ?? null}
                     activities={log?.manualActivities ?? []}
+                  />
+                </div>
+                <div className="border-t border-border pt-6">
+                  <CommitEvidence
+                    reportId={report.id}
+                    dateKey={dateKey}
+                    dailyLogId={log?.id ?? null}
+                    attached={log?.logbookCommits.map(toAttachedCommit) ?? []}
+                    hasConnection={Boolean(connection)}
                   />
                 </div>
               </CardContent>

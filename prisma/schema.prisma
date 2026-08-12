@@ -18,18 +18,92 @@ enum DailyLogStatus {
 }
 
 model User {
-  id            String         @id @default(cuid(2))
-  name          String
-  nim           String
-  email         String         @unique
-  passwordHash  String
-  scheme        String
-  partner       String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  weeklyReports WeeklyReport[]
+  id               String            @id @default(cuid(2))
+  name             String
+  nim              String
+  email            String            @unique
+  passwordHash     String
+  scheme           String
+  partner          String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  weeklyReports    WeeklyReport[]
+  githubConnection GitHubConnection?
+  repositories     Repository[]
 
   @@map("users")
+}
+
+model GitHubConnection {
+  id                    String       @id @default(cuid(2))
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String       @unique
+  githubUserId          String
+  githubUsername        String
+  accessTokenEncrypted  String
+  refreshTokenEncrypted String?
+  tokenExpiresAt        DateTime?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+  repositories          Repository[]
+
+  @@map("github_connections")
+}
+
+model Repository {
+  id            String           @id @default(cuid(2))
+  githubId      Int
+  connection    GitHubConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connectionId  String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  name          String
+  fullName      String
+  owner         String
+  defaultBranch String?
+  isSelected    Boolean          @default(false)
+  lastFetchedAt DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  commits       Commit[]
+
+  @@unique([connectionId, githubId])
+  @@index([userId])
+  @@map("repositories")
+}
+
+model Commit {
+  id               String        @id @default(cuid(2))
+  repository       Repository    @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  repositoryId     String
+  sha              String
+  message          String
+  authorName       String
+  authorEmail      String
+  committedAt      DateTime
+  changedFilesJson String        @default("[]")
+  additions        Int?
+  deletions        Int?
+  url              String
+  logbookCommits   LogbookCommit[]
+
+  @@unique([repositoryId, sha])
+  @@index([repositoryId])
+  @@map("commits")
+}
+
+model LogbookCommit {
+  id         String   @id @default(cuid(2))
+  dailyLog   DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+  dailyLogId String
+  commit     Commit   @relation(fields: [commitId], references: [id], onDelete: Cascade)
+  commitId   String
+  createdAt  DateTime @default(now())
+
+  @@unique([dailyLogId, commitId])
+  @@index([dailyLogId])
+  @@index([commitId])
+  @@map("logbook_commits")
 }
 
 model WeeklyReport {
@@ -65,6 +139,7 @@ model DailyLog {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
   manualActivities ManualActivity[]
+  logbookCommits   LogbookCommit[]
 
   @@index([weeklyReportId])
   @@map("daily_logs")

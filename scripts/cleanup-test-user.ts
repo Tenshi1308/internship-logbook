@@ -9,6 +9,8 @@ async function main() {
           "httpflow@example.com",
           "ghost@nowhere.com",
           "ui-test@example.com",
+          "ghflow@example.com",
+          "ghflow2@example.com",
         ],
       },
     },
