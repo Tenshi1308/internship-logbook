@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
@@ -17,7 +18,7 @@ export default async function ProfilePage() {
 
   if (!profile) {
     return (
-      <p className="text-sm text-red-600">
+      <p className="text-sm text-destructive">
         Data profil tidak ditemukan. Silakan logout dan coba lagi.
       </p>
     );
@@ -33,23 +34,37 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">Profil Saya</h1>
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <dl className="divide-y divide-slate-100">
-          {fields.map((field) => (
-            <div
-              key={field.label}
-              className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <dt className="text-sm font-medium text-slate-500">
-                {field.label}
-              </dt>
-              <dd className="text-base text-slate-900">{field.value}</dd>
-            </div>
-          ))}
-        </dl>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Profil Saya
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Informasi akun dan data magang Anda.
+        </p>
       </div>
-      <p className="text-sm text-slate-500">
+      <Card>
+        <CardHeader>
+          <CardTitle>Informasi Profil</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="divide-y divide-border">
+            {fields.map((field) => (
+              <div
+                key={field.label}
+                className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <dt className="text-sm font-medium text-muted-foreground">
+                  {field.label}
+                </dt>
+                <dd className="text-base font-medium text-foreground">
+                  {field.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </CardContent>
+      </Card>
+      <p className="text-sm text-muted-foreground">
         Pengeditan profil akan tersedia pada fase berikutnya.
       </p>
     </div>

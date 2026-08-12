@@ -3,17 +3,23 @@ export function FormError({ message }: { message?: string }) {
   return (
     <p
       role="alert"
-      className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+      className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm text-destructive"
     >
       {message}
     </p>
   );
 }
 
-export function FieldErrors({ errors }: { errors?: string[] }) {
+export function FieldErrors({
+  errors,
+  id,
+}: {
+  errors?: string[] | undefined;
+  id?: string;
+}) {
   if (!errors || errors.length === 0) return null;
   return (
-    <ul className="mt-1 text-sm text-red-600">
+    <ul id={id} className="mt-1.5 space-y-1 text-sm text-destructive">
       {errors.map((error) => (
         <li key={error}>{error}</li>
       ))}

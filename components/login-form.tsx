@@ -4,10 +4,11 @@ import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { login, type AuthFormState } from "@/lib/actions/auth";
-import { FieldErrors, FormError } from "@/components/form-message";
-
-const inputClass =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200";
+import { FormError } from "@/components/form-message";
+import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function LoginForm() {
   const [state, formAction, pending] = useActionState<AuthFormState, FormData>(
@@ -25,39 +26,40 @@ export default function LoginForm() {
         </p>
       )}
       <FormError message={state?.error} />
-      <div>
-        <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">
-          Email
-        </label>
-        <input
-          id="email"
+      <Field
+        id="email"
+        label="Email"
+        errors={state?.fieldErrors?.email}
+      >
+        <Input
           name="email"
           type="email"
           autoComplete="email"
-          className={inputClass}
+          placeholder="nama@email.com"
+          aria-invalid={state?.fieldErrors?.email ? true : undefined}
+          aria-describedby={
+            state?.fieldErrors?.email ? "email-error" : undefined
+          }
         />
-        <FieldErrors errors={state?.fieldErrors?.email} />
-      </div>
-      <div>
-        <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          className={inputClass}
-        />
-        <FieldErrors errors={state?.fieldErrors?.password} />
-      </div>
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+      </Field>
+      <Field
+        id="password"
+        label="Password"
+        errors={state?.fieldErrors?.password}
       >
+        <PasswordInput
+          name="password"
+          autoComplete="current-password"
+          placeholder="Masukkan password"
+          aria-invalid={state?.fieldErrors?.password ? true : undefined}
+          aria-describedby={
+            state?.fieldErrors?.password ? "password-error" : undefined
+          }
+        />
+      </Field>
+      <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Masuk..." : "Login"}
-      </button>
+      </Button>
     </form>
   );
 }

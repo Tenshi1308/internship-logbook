@@ -3,43 +3,11 @@
 import { useActionState } from "react";
 
 import { register, type AuthFormState } from "@/lib/actions/auth";
-import { FieldErrors, FormError } from "@/components/form-message";
-
-const inputClass =
-  "w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200";
-
-function Field({
-  id,
-  label,
-  type = "text",
-  placeholder,
-  autoComplete,
-  errors,
-}: {
-  id: string;
-  label: string;
-  type?: string;
-  placeholder?: string;
-  autoComplete?: string;
-  errors?: string[];
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-1 block text-sm font-medium text-slate-700">
-        {label}
-      </label>
-      <input
-        id={id}
-        name={id}
-        type={type}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        className={inputClass}
-      />
-      <FieldErrors errors={errors} />
-    </div>
-  );
-}
+import { FormError } from "@/components/form-message";
+import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function RegisterForm() {
   const [state, formAction, pending] = useActionState<AuthFormState, FormData>(
@@ -47,58 +15,82 @@ export default function RegisterForm() {
     undefined
   );
 
+  const fieldErrors = state?.fieldErrors;
+
   return (
     <form action={formAction} className="space-y-4">
       <FormError message={state?.error} />
-      <Field
-        id="name"
-        label="Nama"
-        placeholder="Nama lengkap"
-        autoComplete="name"
-        errors={state?.fieldErrors?.name}
-      />
-      <Field
-        id="nim"
-        label="NIM"
-        placeholder="NIM"
-        autoComplete="off"
-        errors={state?.fieldErrors?.nim}
-      />
-      <Field
-        id="email"
-        label="Email"
-        type="email"
-        placeholder="nama@email.com"
-        autoComplete="email"
-        errors={state?.fieldErrors?.email}
-      />
+      <Field id="name" label="Nama" errors={fieldErrors?.name}>
+        <Input
+          name="name"
+          autoComplete="name"
+          placeholder="Nama lengkap"
+          aria-invalid={fieldErrors?.name ? true : undefined}
+          aria-describedby={
+            fieldErrors?.name ? "name-error" : undefined
+          }
+        />
+      </Field>
+      <Field id="nim" label="NIM" errors={fieldErrors?.nim}>
+        <Input
+          name="nim"
+          autoComplete="off"
+          placeholder="NIM"
+          aria-invalid={fieldErrors?.nim ? true : undefined}
+          aria-describedby={fieldErrors?.nim ? "nim-error" : undefined}
+        />
+      </Field>
+      <Field id="email" label="Email" errors={fieldErrors?.email}>
+        <Input
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="nama@email.com"
+          aria-invalid={fieldErrors?.email ? true : undefined}
+          aria-describedby={
+            fieldErrors?.email ? "email-error" : undefined
+          }
+        />
+      </Field>
       <Field
         id="password"
         label="Password"
-        type="password"
-        placeholder="Minimal 8 karakter"
-        autoComplete="new-password"
-        errors={state?.fieldErrors?.password}
-      />
-      <Field
-        id="scheme"
-        label="Skema"
-        placeholder="Contoh: Community Developer"
-        errors={state?.fieldErrors?.scheme}
-      />
-      <Field
-        id="partner"
-        label="Mitra"
-        placeholder="Nama mitra"
-        errors={state?.fieldErrors?.partner}
-      />
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+        hint="Minimal 8 karakter."
+        errors={fieldErrors?.password}
       >
+        <PasswordInput
+          name="password"
+          autoComplete="new-password"
+          placeholder="Buat password"
+          aria-invalid={fieldErrors?.password ? true : undefined}
+          aria-describedby={
+            fieldErrors?.password ? "password-error" : undefined
+          }
+        />
+      </Field>
+      <Field id="scheme" label="Skema" errors={fieldErrors?.scheme}>
+        <Input
+          name="scheme"
+          placeholder="Contoh: Community Developer"
+          aria-invalid={fieldErrors?.scheme ? true : undefined}
+          aria-describedby={
+            fieldErrors?.scheme ? "scheme-error" : undefined
+          }
+        />
+      </Field>
+      <Field id="partner" label="Mitra" errors={fieldErrors?.partner}>
+        <Input
+          name="partner"
+          placeholder="Nama mitra"
+          aria-invalid={fieldErrors?.partner ? true : undefined}
+          aria-describedby={
+            fieldErrors?.partner ? "partner-error" : undefined
+          }
+        />
+      </Field>
+      <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Mendaftar..." : "Daftar"}
-      </button>
+      </Button>
     </form>
   );
 }

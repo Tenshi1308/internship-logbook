@@ -1,18 +1,23 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { LogOut } from "lucide-react";
 
 import { logout } from "@/lib/actions/auth";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+
   return (
     <button
       type="submit"
       disabled={pending}
-      className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {pending ? "Keluar..." : "Logout"}
+      <LogOut className="h-5 w-5 shrink-0" aria-hidden="true" />
+      <span className="truncate">
+        {pending ? "Keluar..." : "Logout"}
+      </span>
     </button>
   );
 }

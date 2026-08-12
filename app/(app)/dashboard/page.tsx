@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
@@ -17,33 +18,47 @@ export default async function DashboardPage() {
 
   if (!profile) {
     return (
-      <p className="text-sm text-red-600">
+      <p className="text-sm text-destructive">
         Data profil tidak ditemukan. Silakan logout dan coba lagi.
       </p>
     );
   }
 
+  const fields = [
+    { label: "NIM", value: profile.nim },
+    { label: "Skema", value: profile.scheme },
+    { label: "Mitra", value: profile.partner },
+  ];
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-slate-900">
-        Selamat datang, {profile.name}!
-      </h1>
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <dt className="text-sm font-medium text-slate-500">NIM</dt>
-            <dd className="mt-1 text-base text-slate-900">{profile.nim}</dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-slate-500">Skema</dt>
-            <dd className="mt-1 text-base text-slate-900">{profile.scheme}</dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-slate-500">Mitra</dt>
-            <dd className="mt-1 text-base text-slate-900">{profile.partner}</dd>
-          </div>
-        </dl>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Selamat datang, {profile.name}!
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Kelola laporan mingguan magang Anda dari sini.
+        </p>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Profil Magang</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {fields.map((field) => (
+              <div key={field.label}>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  {field.label}
+                </dt>
+                <dd className="mt-1 text-base font-medium text-foreground">
+                  {field.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </CardContent>
+      </Card>
     </div>
   );
 }

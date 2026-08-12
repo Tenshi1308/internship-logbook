@@ -3,7 +3,15 @@ import { prisma } from "../lib/prisma";
 
 async function main() {
   const deleted = await prisma.user.deleteMany({
-    where: { email: { in: ["httpflow@example.com", "ghost@nowhere.com"] } },
+    where: {
+      email: {
+        in: [
+          "httpflow@example.com",
+          "ghost@nowhere.com",
+          "ui-test@example.com",
+        ],
+      },
+    },
   });
   console.log(`deleted ${deleted.count} test users`);
   await prisma.$disconnect();
