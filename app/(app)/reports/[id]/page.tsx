@@ -9,8 +9,10 @@ import ActivityList from "@/components/activity-list";
 import DeleteReportButton from "@/components/delete-report-button";
 import CommitEvidence, { type AttachedCommit } from "@/components/commit-evidence";
 import AIDescription from "@/components/ai-description";
+import DocumentationGallery, { type GalleryPhoto } from "@/components/documentation-gallery";
 import { requireUser } from "@/lib/session";
 import { isAIConfigured } from "@/lib/ai";
+import { isCloudinaryConfigured } from "@/lib/cloudinary";
 import { getReportForUser } from "@/lib/reports";
 import { getConnectionForUser } from "@/lib/github-data";
 import { daysBetween, formatDayShort, toDateOnly, weekdayOf } from "@/lib/dates";
@@ -54,6 +56,16 @@ export default async function ReportDetailPage({
 
   const connection = await getConnectionForUser(user.id);
   const aiEnabled = isAIConfigured();
+  const photosConfigured = isCloudinaryConfigured();
+
+  const reportPhotos: GalleryPhoto[] = report.documentationPhotos.map(
+    (photo) => ({
+      id: photo.id,
+      url: photo.url,
+      caption: photo.caption,
+      order: photo.order,
+    })
+  );
 
   const logByDate = new Map(
     report.dailyLogs.map((log) => [toDateOnly(log.date), log])
@@ -82,6 +94,23 @@ export default async function ReportDetailPage({
         </CardHeader>
         <CardContent>
           <ReportInfoForm report={report} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Dokumentasi Kegiatan</CardTitle>
+          <CardDescription>
+            Unggah foto kegiatan selama minggu ini, beri keterangan, atur urutan,
+            atau hapus foto yang tidak diperlukan.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DocumentationGallery
+            reportId={report.id}
+            initialPhotos={reportPhotos}
+            cloudinaryConfigured={photosConfigured}
+          />
         </CardContent>
       </Card>
 

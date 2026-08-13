@@ -31,6 +31,9 @@ const dailyLogInclude = {
       },
     },
   },
+  documentationPhotos: {
+    orderBy: [{ order: "asc" as const }, { createdAt: "asc" as const }],
+  },
 };
 
 export async function listReportsForUser(userId: string) {
@@ -57,6 +60,9 @@ export async function getReportForUser(userId: string, reportId: string) {
       dailyLogs: {
         orderBy: [{ date: "asc" }],
         include: dailyLogInclude,
+      },
+      documentationPhotos: {
+        orderBy: [{ order: "asc" as const }, { createdAt: "asc" as const }],
       },
     },
   });

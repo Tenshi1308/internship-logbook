@@ -113,6 +113,11 @@ export const aiDescriptionSchema = z
   .min(1, "Deskripsi tidak boleh kosong")
   .max(4000, "Deskripsi maksimal 4000 karakter");
 
+export const photoCaptionSchema = z
+  .string()
+  .trim()
+  .max(300, "Keterangan maksimal 300 karakter");
+
 export type CreateReportInput = z.infer<typeof createReportSchema>;
 export type ReportInfoInput = z.infer<typeof reportInfoSchema>;
 export type SaveDayInput = z.infer<typeof saveDaySchema>;

@@ -107,18 +107,19 @@ model LogbookCommit {
 }
 
 model WeeklyReport {
-  id                String             @id @default(cuid(2))
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            String
-  weekNumber        Int
-  startDate         DateTime
-  endDate           DateTime
-  nextWeekPlan      String?
-  studentEvaluation String?
-  status            WeeklyReportStatus @default(DRAFT)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  dailyLogs         DailyLog[]
+  id                  String               @id @default(cuid(2))
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String
+  weekNumber          Int
+  startDate           DateTime
+  endDate             DateTime
+  nextWeekPlan        String?
+  studentEvaluation   String?
+  status              WeeklyReportStatus   @default(DRAFT)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  dailyLogs           DailyLog[]
+  documentationPhotos DocumentationPhoto[]
 
   @@index([userId])
   @@map("weekly_reports")
@@ -140,6 +141,7 @@ model DailyLog {
   updatedAt        DateTime         @updatedAt
   manualActivities ManualActivity[]
   logbookCommits   LogbookCommit[]
+  documentationPhotos DocumentationPhoto[]
 
   @@index([weeklyReportId])
   @@map("daily_logs")
@@ -155,4 +157,22 @@ model ManualActivity {
 
   @@index([dailyLogId])
   @@map("manual_activities")
+}
+
+model DocumentationPhoto {
+  id                 String       @id @default(cuid(2))
+  weeklyReport       WeeklyReport @relation(fields: [weeklyReportId], references: [id], onDelete: Cascade)
+  weeklyReportId     String
+  dailyLog           DailyLog?    @relation(fields: [dailyLogId], references: [id], onDelete: SetNull)
+  dailyLogId         String?
+  cloudinaryPublicId String
+  url                String
+  caption            String       @default("")
+  order              Int
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([weeklyReportId])
+  @@index([dailyLogId])
+  @@map("documentation_photos")
 }
