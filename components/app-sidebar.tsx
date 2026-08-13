@@ -4,7 +4,7 @@ import LogoutButton from "@/components/logout-button";
 
 export function AppSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar print:hidden md:flex">
       <div className="border-b border-sidebar-border px-4 py-5">
         <AppLogo />
       </div>

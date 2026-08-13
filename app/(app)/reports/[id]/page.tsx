@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Eye } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
@@ -10,6 +12,7 @@ import DeleteReportButton from "@/components/delete-report-button";
 import CommitEvidence, { type AttachedCommit } from "@/components/commit-evidence";
 import AIDescription from "@/components/ai-description";
 import DocumentationGallery, { type GalleryPhoto } from "@/components/documentation-gallery";
+import PlanEvaluationForm from "@/components/plan-evaluation-form";
 import { requireUser } from "@/lib/session";
 import { isAIConfigured } from "@/lib/ai";
 import { isCloudinaryConfigured } from "@/lib/cloudinary";
@@ -85,7 +88,16 @@ export default async function ReportDetailPage({
             {report.dailyLogs.length} hari dicatat
           </p>
         </div>
-        <DeleteReportButton reportId={report.id} />
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <Link
+            href={`/reports/${report.id}/preview`}
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"
+          >
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            Pratinjau Laporan
+          </Link>
+          <DeleteReportButton reportId={report.id} />
+        </div>
       </div>
 
       <Card>
@@ -94,6 +106,19 @@ export default async function ReportDetailPage({
         </CardHeader>
         <CardContent>
           <ReportInfoForm report={report} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Rencana &amp; Penilaian Laporan</CardTitle>
+          <CardDescription>
+            Isi bagian 3 (rencana kegiatan minggu depan) dan bagian 4 (penilaian
+            mahasiswa) yang akan tampil pada pratinjau laporan mingguan.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PlanEvaluationForm report={report} />
         </CardContent>
       </Card>
 

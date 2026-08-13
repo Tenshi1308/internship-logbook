@@ -21,7 +21,7 @@ export type ReportData = {
   endDate: Date;
 };
 
-const dailyLogInclude = {
+export const dailyLogInclude = {
   manualActivities: { orderBy: { order: "asc" as const } },
   logbookCommits: {
     orderBy: { commit: { committedAt: "desc" as const } },
@@ -99,6 +99,26 @@ export async function updateReportForUser(
       startDate: data.startDate,
       endDate: data.endDate,
       status: data.status,
+    },
+  });
+}
+
+export type PlanEvaluationData = {
+  nextWeekPlan: string;
+  studentEvaluation: string;
+};
+
+export async function updatePlanEvaluationForUser(
+  userId: string,
+  reportId: string,
+  data: PlanEvaluationData
+) {
+  await resolveOwnedReport(userId, reportId);
+  return prisma.weeklyReport.update({
+    where: { id: reportId },
+    data: {
+      nextWeekPlan: data.nextWeekPlan || null,
+      studentEvaluation: data.studentEvaluation || null,
     },
   });
 }

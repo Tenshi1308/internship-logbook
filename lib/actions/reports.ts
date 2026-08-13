@@ -14,11 +14,13 @@ import {
   ReportNotFoundError,
   saveDayFieldsForUser,
   updateActivityForUser,
+  updatePlanEvaluationForUser,
   updateReportForUser,
 } from "@/lib/reports";
 import {
   activityDescriptionSchema,
   createReportSchema,
+  planEvaluationSchema,
   reportInfoSchema,
   saveDaySchema,
 } from "@/lib/validation";
@@ -103,6 +105,36 @@ export async function updateReport(
   revalidatePath("/reports");
   revalidatePath(`/reports/${reportId}`);
   return { message: "Perubahan disimpan." };
+}
+
+export async function savePlanEvaluation(
+  _prevState: ReportFormState,
+  formData: FormData
+): Promise<ReportFormState> {
+  const user = await requireUser();
+  const reportId = String(formData.get("reportId") ?? "");
+
+  const parsed = planEvaluationSchema.safeParse({
+    nextWeekPlan: formData.get("nextWeekPlan"),
+    studentEvaluation: formData.get("studentEvaluation"),
+  });
+
+  if (!parsed.success) {
+    return { fieldErrors: parsed.error.flatten().fieldErrors };
+  }
+
+  try {
+    await updatePlanEvaluationForUser(user.id, reportId, parsed.data);
+  } catch (error) {
+    if (error instanceof ReportNotFoundError) {
+      return { error: "Laporan tidak ditemukan." };
+    }
+    return { error: "Gagal menyimpan rencana. Silakan coba lagi." };
+  }
+
+  revalidatePath("/reports");
+  revalidatePath(`/reports/${reportId}`);
+  return { message: "Rencana disimpan." };
 }
 
 export async function saveDay(

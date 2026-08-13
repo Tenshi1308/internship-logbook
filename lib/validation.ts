@@ -118,6 +118,17 @@ export const photoCaptionSchema = z
   .trim()
   .max(300, "Keterangan maksimal 300 karakter");
 
+export const planEvaluationSchema = z.object({
+  nextWeekPlan: z
+    .string()
+    .trim()
+    .max(2000, "Rencana maksimal 2000 karakter"),
+  studentEvaluation: z
+    .string()
+    .trim()
+    .max(2000, "Penilaian maksimal 2000 karakter"),
+});
+
 export type CreateReportInput = z.infer<typeof createReportSchema>;
 export type ReportInfoInput = z.infer<typeof reportInfoSchema>;
 export type SaveDayInput = z.infer<typeof saveDaySchema>;

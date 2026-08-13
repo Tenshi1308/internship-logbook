@@ -79,3 +79,18 @@
     transition: background-color 9999s ease-in-out 0s;
   }
 }
+
+@page {
+  size: A4;
+  margin: 12.7mm;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+
+  .preview-sheet {
+    width: 100% !important;
+  }
+}
