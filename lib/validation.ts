@@ -107,6 +107,12 @@ export const activityDescriptionSchema = z
   .min(1, "Kegiatan tidak boleh kosong")
   .max(1000, "Kegiatan maksimal 1000 karakter");
 
+export const aiDescriptionSchema = z
+  .string()
+  .trim()
+  .min(1, "Deskripsi tidak boleh kosong")
+  .max(4000, "Deskripsi maksimal 4000 karakter");
+
 export type CreateReportInput = z.infer<typeof createReportSchema>;
 export type ReportInfoInput = z.infer<typeof reportInfoSchema>;
 export type SaveDayInput = z.infer<typeof saveDaySchema>;

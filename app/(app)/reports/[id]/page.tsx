@@ -8,7 +8,9 @@ import DayFieldsForm from "@/components/day-fields-form";
 import ActivityList from "@/components/activity-list";
 import DeleteReportButton from "@/components/delete-report-button";
 import CommitEvidence, { type AttachedCommit } from "@/components/commit-evidence";
+import AIDescription from "@/components/ai-description";
 import { requireUser } from "@/lib/session";
+import { isAIConfigured } from "@/lib/ai";
 import { getReportForUser } from "@/lib/reports";
 import { getConnectionForUser } from "@/lib/github-data";
 import { daysBetween, formatDayShort, toDateOnly, weekdayOf } from "@/lib/dates";
@@ -51,6 +53,7 @@ export default async function ReportDetailPage({
   }
 
   const connection = await getConnectionForUser(user.id);
+  const aiEnabled = isAIConfigured();
 
   const logByDate = new Map(
     report.dailyLogs.map((log) => [toDateOnly(log.date), log])
@@ -126,6 +129,17 @@ export default async function ReportDetailPage({
                     dailyLogId={log?.id ?? null}
                     attached={log?.logbookCommits.map(toAttachedCommit) ?? []}
                     hasConnection={Boolean(connection)}
+                  />
+                </div>
+                <div className="border-t border-border pt-6">
+                  <AIDescription
+                    reportId={report.id}
+                    dateKey={dateKey}
+                    initialDraft={log?.aiDraft ?? ""}
+                    finalDescription={log?.finalDescription ?? null}
+                    activityCount={log?.manualActivities.length ?? 0}
+                    commitCount={log?.logbookCommits.length ?? 0}
+                    aiEnabled={aiEnabled}
                   />
                 </div>
               </CardContent>
