@@ -7,6 +7,7 @@ import { FormError, FormSuccess } from "@/components/form-message";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import LogoutButton from "@/components/logout-button";
 
 export default function ProfileEditForm({
   name,
@@ -69,6 +70,9 @@ export default function ProfileEditForm({
         <Button type="submit" disabled={pending}>
           {pending ? "Menyimpan..." : "Simpan Profil"}
         </Button>
+        <div className="md:hidden">
+          <LogoutButton variant="outline" />
+        </div>
         <FormSuccess message={state?.message ?? ""} />
       </div>
     </form>
