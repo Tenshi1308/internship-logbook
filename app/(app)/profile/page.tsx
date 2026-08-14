@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import ProfileEditForm from "@/components/profile-edit-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
@@ -24,14 +25,6 @@ export default async function ProfilePage() {
     );
   }
 
-  const fields = [
-    { label: "Nama", value: profile.name },
-    { label: "NIM", value: profile.nim },
-    { label: "Email", value: profile.email },
-    { label: "Skema", value: profile.scheme },
-    { label: "Mitra", value: profile.partner },
-  ];
-
   return (
     <div className="space-y-6">
       <div>
@@ -44,29 +37,34 @@ export default async function ProfilePage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Informasi Profil</CardTitle>
+          <CardTitle>Informasi Akun</CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="divide-y divide-border">
-            {fields.map((field) => (
-              <div
-                key={field.label}
-                className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <dt className="text-sm font-medium text-muted-foreground">
-                  {field.label}
-                </dt>
-                <dd className="text-base font-medium text-foreground">
-                  {field.value}
-                </dd>
-              </div>
-            ))}
+            <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <dt className="text-sm font-medium text-muted-foreground">
+                Email
+              </dt>
+              <dd className="text-base font-medium text-foreground">
+                {profile.email}
+              </dd>
+            </div>
           </dl>
         </CardContent>
       </Card>
-      <p className="text-sm text-muted-foreground">
-        Pengeditan profil akan tersedia pada fase berikutnya.
-      </p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Profil</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ProfileEditForm
+            name={profile.name}
+            nim={profile.nim}
+            scheme={profile.scheme}
+            partner={profile.partner}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -118,6 +118,29 @@ export const photoCaptionSchema = z
   .trim()
   .max(300, "Keterangan maksimal 300 karakter");
 
+export const profileSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Nama minimal 2 karakter")
+    .max(100, "Nama maksimal 100 karakter"),
+  nim: z
+    .string()
+    .trim()
+    .min(5, "NIM tidak valid")
+    .max(20, "NIM tidak valid"),
+  scheme: z
+    .string()
+    .trim()
+    .min(1, "Skema wajib diisi")
+    .max(100, "Skema maksimal 100 karakter"),
+  partner: z
+    .string()
+    .trim()
+    .min(1, "Mitra wajib diisi")
+    .max(100, "Mitra maksimal 100 karakter"),
+});
+
 export const planEvaluationSchema = z.object({
   nextWeekPlan: z
     .string()
@@ -132,3 +155,4 @@ export const planEvaluationSchema = z.object({
 export type CreateReportInput = z.infer<typeof createReportSchema>;
 export type ReportInfoInput = z.infer<typeof reportInfoSchema>;
 export type SaveDayInput = z.infer<typeof saveDaySchema>;
+export type ProfileInput = z.infer<typeof profileSchema>;
