@@ -47,6 +47,34 @@ npx prisma generate         # regenerate the client into generated/prisma
 - `npx tsx scripts/verify-auth.ts` – end-to-end auth/db assertions against the
   live database (must have `.env.local` set).
 
+## Deploying to Vercel
+
+1. Push this repository to GitHub (`main` branch).
+2. Import the repo in the [Vercel dashboard](https://vercel.com/new).
+   Framework preset: **Next.js**; build command defaults are fine
+   (`npm install` runs `prisma generate` via the `postinstall` script).
+3. Add the production **Environment Variables** listed in `.env.example`
+   (names and how to obtain each value are described there).
+4. Run migrations against the production database:
+   `npx prisma migrate deploy` (uses `DIRECT_URL`).
+5. Configure external services for production:
+   - **GitHub OAuth App**: register at
+     https://github.com/settings/developers with callback URL
+     `https://<your-domain>/api/github/callback`.
+   - **Cloudinary**: cloud name / API key / API secret from the dashboard.
+   - **AI provider**: an OpenAI-compatible `/chat/completions` endpoint
+     (`AI_API_KEY`, `AI_API_URL`, `AI_MODEL`).
+6. `AUTH_SECRET` and `ENCRYPTION_KEY` must be random values, e.g.
+   `openssl rand -base64 32`. Never share them.
+7. Smoke-test: register/login, create a weekly report and daily log, generate
+   an AI draft, connect GitHub, upload a photo, and export a DOCX.
+
+### Runtime caution
+
+The app calls external services (GitHub OAuth, Cloudinary, the AI provider)
+from the Vercel runtime. Keep those integrations optional: when a credential
+is missing the UI still degrades gracefully and manual workflows keep working.
+
 ## Docs
 
 - `REQUIREMENTS.md` – product requirements.
