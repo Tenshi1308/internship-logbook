@@ -7,24 +7,37 @@ import {
   listRepositoriesForUser,
   syncRepositoriesForUser,
 } from "@/lib/github-data";
-import { requireUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function noStoreJson(
+  body: unknown,
+  init?: { status?: number }
+) {
+  return NextResponse.json(body, {
+    status: init?.status ?? 200,
+    headers: { "Cache-Control": "private, no-store" },
+  });
+}
+
 export async function GET() {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user?.id) {
+    return noStoreJson({ error: "unauthorized" }, { status: 401 });
+  }
 
   const connection = await getConnectionForUser(user.id);
   if (!connection) {
-    return NextResponse.json({ error: "github-not-connected" }, { status: 400 });
+    return noStoreJson({ error: "github-not-connected" }, { status: 400 });
   }
 
   let token: string;
   try {
     token = await decryptSecret(connection.accessTokenEncrypted);
   } catch {
-    return NextResponse.json({ error: "github-token-invalid" }, { status: 500 });
+    return noStoreJson({ error: "github-token-invalid" }, { status: 500 });
   }
 
   let repos;
@@ -40,9 +53,9 @@ export async function GET() {
     }
     const cached = await listRepositoriesForUser(user.id);
     if (cached.length > 0) {
-      return NextResponse.json({ repositories: cached, warning });
+      return noStoreJson({ repositories: cached, warning });
     }
-    return NextResponse.json(
+    return noStoreJson(
       {
         error: warning,
         message: "Gagal mengambil repository dari GitHub.",
@@ -52,5 +65,5 @@ export async function GET() {
   }
 
   const saved = await listRepositoriesForUser(user.id);
-  return NextResponse.json({ repositories: saved, warning });
+  return noStoreJson({ repositories: saved, warning });
 }

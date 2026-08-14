@@ -24,6 +24,13 @@ export async function getConnectionForUser(userId: string) {
   });
 }
 
+export async function findConnectionByGithubUserId(githubUserId: number) {
+  return prisma.gitHubConnection.findFirst({
+    where: { githubUserId: String(githubUserId) },
+    select: { userId: true },
+  });
+}
+
 export async function saveConnectionForUser(
   userId: string,
   data: {

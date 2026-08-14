@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { encryptSecret } from "@/lib/encrypt";
 import {
@@ -6,26 +6,46 @@ import {
   fetchGitHubUser,
   isGitHubConfigured,
 } from "@/lib/github";
-import { saveConnectionForUser } from "@/lib/github-data";
+import {
+  findConnectionByGithubUserId,
+  saveConnectionForUser,
+} from "@/lib/github-data";
 import { requireUser } from "@/lib/session";
 
 export const runtime = "nodejs";
 
-export async function GET(request: Request) {
+function clearStateCookie(response: NextResponse) {
+  response.cookies.set("github_oauth_state", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
+export async function GET(request: NextRequest) {
   const user = await requireUser();
 
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  const initialState = request.headers
-    .get("cookie")
-    ?.match(/(?:^|;\s*)github_oauth_state=([^;]+)/)?.[1];
+  const initialState = request.cookies.get("github_oauth_state")?.value;
 
-  const fail = () =>
-    NextResponse.redirect(new URL("/github?error=oauth_failed", request.url));
+  const fail = () => {
+    const response = NextResponse.redirect(
+      new URL("/github?error=oauth_failed", request.url)
+    );
+    clearStateCookie(response);
+    return response;
+  };
 
   if (!isGitHubConfigured()) {
-    return NextResponse.redirect(new URL("/github?error=not_configured", request.url));
+    const response = NextResponse.redirect(
+      new URL("/github?error=not_configured", request.url)
+    );
+    clearStateCookie(response);
+    return response;
   }
   if (!code || !state || !initialState || state !== initialState) {
     return fail();
@@ -48,6 +68,15 @@ export async function GET(request: Request) {
     return fail();
   }
 
+  const existingBinding = await findConnectionByGithubUserId(ghUser.id);
+  if (existingBinding && existingBinding.userId !== user.id) {
+    const response = NextResponse.redirect(
+      new URL("/github?error=oauth_account_in_use", request.url)
+    );
+    clearStateCookie(response);
+    return response;
+  }
+
   const accessTokenEncrypted = await encryptSecret(token);
   await saveConnectionForUser(user.id, {
     githubUserId: String(ghUser.id),
@@ -56,6 +85,6 @@ export async function GET(request: Request) {
   });
 
   const response = NextResponse.redirect(new URL("/github?connected=1", request.url));
-  response.cookies.delete("github_oauth_state");
+  clearStateCookie(response);
   return response;
 }

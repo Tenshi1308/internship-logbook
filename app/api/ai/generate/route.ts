@@ -9,13 +9,24 @@ import {
 } from "@/lib/ai-data";
 import { parseDateOnly } from "@/lib/dates";
 import { ReportDateRangeError, ReportNotFoundError } from "@/lib/reports";
-import { requireUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const MAX_BODY_BYTES = 64 * 1024;
+const MAX_STRING_LENGTH = 64;
+
 export async function POST(request: Request) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user?.id) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "bad-request" }, { status: 413 });
+  }
 
   let body: { reportId?: unknown; date?: unknown };
   try {
@@ -26,7 +37,12 @@ export async function POST(request: Request) {
 
   const reportId = typeof body.reportId === "string" ? body.reportId : "";
   const dateValue = typeof body.date === "string" ? body.date : "";
-  if (!reportId || !dateValue) {
+  if (
+    !reportId ||
+    reportId.length > MAX_STRING_LENGTH ||
+    !dateValue ||
+    dateValue.length > 10
+  ) {
     return NextResponse.json({ error: "bad-request" }, { status: 400 });
   }
 

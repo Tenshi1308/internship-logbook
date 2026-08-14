@@ -9,42 +9,65 @@ import {
   getOwnedRepository,
   listCachedCommits,
 } from "@/lib/github-data";
-import { requireUser } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const MAX_STRING_LENGTH = 64;
+
+function noStoreJson(
+  body: unknown,
+  init?: { status?: number }
+) {
+  return NextResponse.json(body, {
+    status: init?.status ?? 200,
+    headers: { "Cache-Control": "private, no-store" },
+  });
+}
+
 export async function GET(request: Request) {
-  const user = await requireUser();
+  const user = await getCurrentUser();
+  if (!user?.id) {
+    return noStoreJson({ error: "unauthorized" }, { status: 401 });
+  }
 
   const url = new URL(request.url);
   const repositoryId = url.searchParams.get("repositoryId");
   const sinceRaw = url.searchParams.get("since");
   const untilRaw = url.searchParams.get("until");
-  const page = Math.max(1, Number(url.searchParams.get("page") ?? "1"));
-  const perPage = Math.min(100, Math.max(1, Number(url.searchParams.get("perPage") ?? "50")));
 
-  if (!repositoryId) {
-    return NextResponse.json({ error: "repositoryId-wajib" }, { status: 400 });
+  const pageValue = Number(url.searchParams.get("page") ?? "1");
+  const perPageValue = Number(url.searchParams.get("perPage") ?? "50");
+  const page = Number.isFinite(pageValue) ? Math.max(1, Math.trunc(pageValue)) : 1;
+  const perPage = Number.isFinite(perPageValue)
+    ? Math.min(100, Math.max(1, Math.trunc(perPageValue)))
+    : 50;
+
+  if (!repositoryId || repositoryId.length > MAX_STRING_LENGTH) {
+    return noStoreJson({ error: "repositoryId-wajib" }, { status: 400 });
+  }
+  if ((sinceRaw && sinceRaw.length > 10) || (untilRaw && untilRaw.length > 10)) {
+    return noStoreJson({ error: "tanggal-tidak-valid" }, { status: 400 });
   }
 
   let repository;
   try {
     repository = await getOwnedRepository(user.id, repositoryId);
   } catch {
-    return NextResponse.json({ error: "repository-not-found" }, { status: 404 });
+    return noStoreJson({ error: "repository-not-found" }, { status: 404 });
   }
 
   const connection = await getConnectionForUser(user.id);
   if (!connection) {
-    return NextResponse.json({ error: "github-not-connected" }, { status: 400 });
+    return noStoreJson({ error: "github-not-connected" }, { status: 400 });
   }
 
   let token: string;
   try {
     token = await decryptSecret(connection.accessTokenEncrypted);
   } catch {
-    return NextResponse.json({ error: "github-token-invalid" }, { status: 500 });
+    return noStoreJson({ error: "github-token-invalid" }, { status: 500 });
   }
 
   const since = sinceRaw ? (parseDateOnly(sinceRaw) ?? undefined) : undefined;
@@ -81,13 +104,13 @@ export async function GET(request: Request) {
   );
 
   if (cached.length === 0 && !fetched && warning) {
-    return NextResponse.json(
+    return noStoreJson(
       { error: warning, message: "Gagal mengambil commit dari GitHub." },
       { status: 502 }
     );
   }
 
-  return NextResponse.json({
+  return noStoreJson({
     commits: cached,
     fetched,
     warning,

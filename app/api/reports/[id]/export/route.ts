@@ -108,6 +108,7 @@ export async function GET(
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "Content-Disposition": `attachment; filename="${sanitizeFilename(filename)}"`,
       "Content-Length": String(buffer.length),
+      "Cache-Control": "private, no-store",
     },
   });
 }

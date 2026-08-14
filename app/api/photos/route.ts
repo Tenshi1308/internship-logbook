@@ -41,6 +41,12 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  if (caption.length > 300) {
+    return NextResponse.json(
+      { error: "caption-too-long", message: "Keterangan maksimal 300 karakter." },
+      { status: 400 }
+    );
+  }
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
