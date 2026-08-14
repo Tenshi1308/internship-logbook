@@ -13,6 +13,8 @@ import CommitEvidence, { type AttachedCommit } from "@/components/commit-evidenc
 import AIDescription from "@/components/ai-description";
 import DocumentationGallery, { type GalleryPhoto } from "@/components/documentation-gallery";
 import PlanEvaluationForm from "@/components/plan-evaluation-form";
+import DayJumpNav from "@/components/day-jump-nav";
+import UnsavedChangesGuard from "@/components/unsaved-changes-guard";
 import { requireUser } from "@/lib/session";
 import { isAIConfigured } from "@/lib/ai";
 import { isCloudinaryConfigured } from "@/lib/cloudinary";
@@ -75,7 +77,8 @@ export default async function ReportDetailPage({
   );
 
   return (
-    <div className="space-y-6">
+    <UnsavedChangesGuard>
+      <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -140,6 +143,13 @@ export default async function ReportDetailPage({
       </Card>
 
       <div className="space-y-6">
+        <DayJumpNav
+          days={daysBetween(report.startDate, report.endDate).map((day) => ({
+            key: toDateOnly(day),
+            label: weekdayOf(day),
+            short: weekdayOf(day).slice(0, 3),
+          }))}
+        />
         {daysBetween(report.startDate, report.endDate).map((day) => {
           const dateKey = toDateOnly(day);
           const log = logByDate.get(dateKey) ?? null;
@@ -201,6 +211,7 @@ export default async function ReportDetailPage({
           );
         })}
       </div>
-    </div>
+      </div>
+    </UnsavedChangesGuard>
   );
 }

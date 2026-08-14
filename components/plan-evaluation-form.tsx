@@ -43,6 +43,7 @@ export default function PlanEvaluationForm({
         label="Rencana Kegiatan Minggu Depan"
         hint="Bagian 3 pada laporan mingguan"
         errors={fieldErrors?.nextWeekPlan}
+        counter={`${nextWeekPlan.length}/2000`}
       >
         <Textarea
           name="nextWeekPlan"
@@ -60,6 +61,7 @@ export default function PlanEvaluationForm({
         label="Penilaian Mahasiswa"
         hint="Bagian 4 pada laporan mingguan"
         errors={fieldErrors?.studentEvaluation}
+        counter={`${studentEvaluation.length}/2000`}
       >
         <Textarea
           name="studentEvaluation"

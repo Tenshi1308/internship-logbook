@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Check, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import {
   addActivity,
@@ -52,6 +52,12 @@ function AddActivityForm({
         <label htmlFor={`${dateKey}-new-activity`} className="sr-only">
           Deskripsi kegiatan baru
         </label>
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-xs text-muted-foreground">Kegiatan baru</span>
+          <span className="text-xs text-muted-foreground">
+            {text.length}/1000
+          </span>
+        </div>
         <Textarea
           id={`${dateKey}-new-activity`}
           name="description"
@@ -114,6 +120,12 @@ function EditActivityForm({
         <label htmlFor={`${activityId}-edit`} className="sr-only">
           Deskripsi kegiatan
         </label>
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-xs text-muted-foreground">Edit kegiatan</span>
+          <span className="text-xs text-muted-foreground">
+            {text.length}/1000
+          </span>
+        </div>
         <Textarea
           id={`${activityId}-edit`}
           name="description"
@@ -183,7 +195,11 @@ function DeleteActivityButton({
         className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
         aria-label="Hapus kegiatan"
       >
-        <Trash2 className="h-4 w-4" aria-hidden="true" />
+        {pending ? (
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+        )}
       </Button>
     </form>
   );

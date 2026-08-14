@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { GitHubRepoManager } from "@/components/github-repo-manager";
-import { disconnectGitHub } from "@/lib/actions/github";
+import DisconnectGitHubButton from "@/components/disconnect-github-button";
 import { getConnectionForUser } from "@/lib/github-data";
 import { isGitHubConfigured } from "@/lib/github";
 import { requireUser } from "@/lib/session";
@@ -78,11 +77,7 @@ export default async function GitHubPage({
               <span className="rounded-full border border-border bg-secondary px-3 py-1 text-sm font-medium text-foreground">
                 @{connection.githubUsername}
               </span>
-              <form action={disconnectGitHub}>
-                <Button type="submit" variant="outline" size="sm">
-                  Putuskan Koneksi
-                </Button>
-              </form>
+              <DisconnectGitHubButton />
             </div>
           ) : configured ? (
             <a

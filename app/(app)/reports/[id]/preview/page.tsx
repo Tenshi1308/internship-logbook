@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { ReportPreview } from "@/components/report-preview";
 import { PreviewToolbar } from "@/components/preview-toolbar";
+import ScaledPreview from "@/components/scaled-preview";
 import { requireUser } from "@/lib/session";
 import { getReportPreviewForUser } from "@/lib/preview";
 
@@ -29,7 +30,9 @@ export default async function ReportPreviewPage({
         reportHref={`/reports/${preview.id}`}
         status={preview.status}
       />
-      <ReportPreview report={preview} showCompleteness />
+      <ScaledPreview>
+        <ReportPreview report={preview} showCompleteness />
+      </ScaledPreview>
     </div>
   );
 }

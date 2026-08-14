@@ -50,6 +50,7 @@ export default function DocumentationGallery({
   const [captionState, setCaptionState] = useState<Record<string, PhotoFormState>>(
     {}
   );
+  const [captionPending, setCaptionPending] = useState<string | null>(null);
   const [reorderMessage, setReorderMessage] = useState<string>("");
   const [reorderError, setReorderError] = useState<string>("");
   const [reordering, setReordering] = useState(false);
@@ -173,7 +174,9 @@ export default function DocumentationGallery({
         <div className="space-y-2 p-3">
           <form
             action={async (formData) => {
+              setCaptionPending(photo.id);
               const result = await savePhotoCaption(undefined, formData);
+              setCaptionPending(null);
               setCaptionState((prev) => ({ ...prev, [photo.id]: result }));
               if (!result?.error) {
                 setPhotos((prev) =>
@@ -198,8 +201,17 @@ export default function DocumentationGallery({
                 placeholder="Tulis keterangan..."
                 aria-label={`Keterangan gambar ${index + 1}`}
               />
-              <Button type="submit" size="icon" variant="outline">
-                <Save className="h-4 w-4" aria-hidden="true" />
+              <Button
+                type="submit"
+                size="icon"
+                variant="outline"
+                disabled={captionPending === photo.id}
+              >
+                {captionPending === photo.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Save className="h-4 w-4" aria-hidden="true" />
+                )}
                 <span className="sr-only">Simpan keterangan</span>
               </Button>
             </div>

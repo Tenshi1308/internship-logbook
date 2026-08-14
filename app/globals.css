@@ -99,4 +99,8 @@
   .preview-sheet {
     width: 100% !important;
   }
+
+  .preview-scale {
+    zoom: 1 !important;
+  }
 }

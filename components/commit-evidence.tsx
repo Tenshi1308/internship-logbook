@@ -109,7 +109,11 @@ function AttachedList({
               className="text-muted-foreground hover:text-destructive"
               aria-label="Lepas commit"
             >
-              <Unlink className="h-4 w-4" aria-hidden="true" />
+              {pendingId === commit.id ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Unlink className="h-4 w-4" aria-hidden="true" />
+              )}
             </Button>
           </li>
         ))}
@@ -128,6 +132,7 @@ function CommitPicker({ reportId, dateKey }: { reportId: string; dateKey: string
   const [fetching, setFetching] = useState(false);
   const [attachedIds, setAttachedIds] = useState<Set<string>>(new Set());
   const [state, setState] = useState<GitHubFormState>(undefined);
+  const [attachingId, setAttachingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -153,11 +158,13 @@ function CommitPicker({ reportId, dateKey }: { reportId: string; dateKey: string
 
   async function handleAttach(commitId: string) {
     setState(undefined);
+    setAttachingId(commitId);
     const formData = new FormData();
     formData.set("reportId", reportId);
     formData.set("date", dateKey);
     formData.set("commitId", commitId);
     const result = await attachCommit(undefined, formData);
+    setAttachingId(null);
     setState(result);
     if (result?.message) {
       setAttachedIds((prev) => new Set(prev).add(commitId));
@@ -287,12 +294,16 @@ function CommitPicker({ reportId, dateKey }: { reportId: string; dateKey: string
                   type="button"
                   size="sm"
                   variant={attached ? "primary" : "outline"}
-                  disabled={attached}
+                  disabled={attached || attachingId === commit.id}
                   onClick={() => handleAttach(commit.id)}
                   className="shrink-0"
                 >
-                  <Plus className="h-4 w-4" aria-hidden="true" />
-                  {attached ? "Terpasang" : "Lampirkan"}
+                  {attachingId === commit.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  ) : (
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {attached ? "Terpasang" : attachingId === commit.id ? "Melampirkan..." : "Lampirkan"}
                 </Button>
               </li>
             );
