@@ -370,21 +370,18 @@ export function ReportPreview({
 
         <div className="mt-2 space-y-1 px-2">
           <p>
-            <span className="inline-block w-[6rem] text-right font-bold">
-              Skema :{" "}
-            </span>
+            <span className="inline-block w-[7rem] font-bold">Skema</span>
+            <span className="font-bold"> : </span>
             {report.user.scheme}
           </p>
           <p>
-            <span className="inline-block w-[6rem] text-right font-bold">
-              Mitra :{" "}
-            </span>
+            <span className="inline-block w-[7rem] font-bold">Mitra</span>
+            <span className="font-bold"> : </span>
             {report.user.partner}
           </p>
           <p>
-            <span className="inline-block w-[6rem] text-right font-bold">
-              Minggu ke :{" "}
-            </span>
+            <span className="inline-block w-[7rem] font-bold">Minggu ke</span>
+            <span className="font-bold"> : </span>
             {report.weekNumber} ({formatDayShort(report.startDate)} -{" "}
             {formatDayShort(report.endDate)})
           </p>
