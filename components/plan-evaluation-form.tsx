@@ -35,7 +35,7 @@ export default function PlanEvaluationForm({
   const fieldErrors = state?.fieldErrors;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4" data-save-all="true">
       <input type="hidden" name="reportId" value={report.id} />
       <FormError message={state?.error} />
       <Field

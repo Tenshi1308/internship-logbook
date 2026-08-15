@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -8,6 +8,7 @@ import {
   Loader2,
   Save,
   Trash2,
+  X,
 } from "lucide-react";
 
 import {
@@ -44,6 +45,7 @@ export default function DocumentationGallery({
 }) {
   const [photos, setPhotos] = useState(initialPhotos);
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<UploadError | null>(null);
@@ -58,9 +60,19 @@ export default function DocumentationGallery({
   const [deleteError, setDeleteError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   function resetUpload() {
     setFile(null);
     setCaption("");
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
@@ -286,7 +298,12 @@ export default function DocumentationGallery({
           disabled={uploading}
           onChange={(event) => {
             setUploadMessage(null);
-            setFile(event.target.files?.[0] ?? null);
+            const selected = event.target.files?.[0] ?? null;
+            setFile(selected);
+            setPreviewUrl((prev) => {
+              if (prev) URL.revokeObjectURL(prev);
+              return selected ? URL.createObjectURL(selected) : null;
+            });
           }}
         />
         <div className="flex flex-wrap items-center gap-2">
@@ -311,6 +328,37 @@ export default function DocumentationGallery({
           </Button>
         </div>
       </div>
+
+      {previewUrl && file ? (
+        <div className="flex items-center gap-3 rounded-lg border border-border bg-background p-2">
+          <div className="relative h-24 w-36 shrink-0 overflow-hidden rounded-md bg-secondary/40">
+            {/* eslint-disable-next-line @next/next/no-img-element -- blob preview of locally selected file */}
+            <img
+              src={previewUrl}
+              alt="Pratinjau gambar yang dipilih"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1 space-y-1">
+            <p className="truncate text-sm font-medium text-foreground">
+              {file.name}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {(file.size / 1024).toFixed(1)} KB
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              onClick={resetUpload}
+              disabled={uploading}
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+              Batal pilih
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       {!cloudinaryConfigured ? (
         <p className="text-xs text-muted-foreground">

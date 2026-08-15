@@ -14,6 +14,7 @@ import AIDescription from "@/components/ai-description";
 import DocumentationGallery, { type GalleryPhoto } from "@/components/documentation-gallery";
 import PlanEvaluationForm from "@/components/plan-evaluation-form";
 import DayJumpNav from "@/components/day-jump-nav";
+import SaveAllButton from "@/components/save-all-button";
 import UnsavedChangesGuard from "@/components/unsaved-changes-guard";
 import { requireUser } from "@/lib/session";
 import { isAIConfigured } from "@/lib/ai";
@@ -92,6 +93,7 @@ export default async function ReportDetailPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 print:hidden">
+          <SaveAllButton />
           <Link
             href={`/reports/${report.id}/preview`}
             className="inline-flex h-9 items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary hover:text-secondary-foreground"

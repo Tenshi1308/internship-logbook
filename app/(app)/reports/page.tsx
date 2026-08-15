@@ -28,6 +28,8 @@ export default async function ReportsPage() {
         </p>
       </div>
 
+      <CreateReportForm />
+
       {reports.length === 0 ? (
         <Card>
           <CardHeader>
@@ -71,7 +73,6 @@ export default async function ReportsPage() {
         </div>
       )}
 
-      <CreateReportForm />
     </div>
   );
 }

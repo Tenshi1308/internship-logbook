@@ -37,7 +37,7 @@ export default function DayFieldsForm({
   const fieldErrors = state?.fieldErrors;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4" data-save-all="true">
       <input type="hidden" name="reportId" value={reportId} />
       <input type="hidden" name="date" value={dateKey} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

@@ -33,7 +33,7 @@ export default function ReportInfoForm({ report }: { report: ReportInfo }) {
   const fieldErrors = state?.fieldErrors;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4" data-save-all="true">
       <input type="hidden" name="reportId" value={report.id} />
       <FormError message={state?.error} />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

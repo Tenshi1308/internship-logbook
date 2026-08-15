@@ -126,7 +126,11 @@ export default function AIDescription({
           </p>
         ) : null}
 
-        <form action={formAction} className="space-y-3">
+        <form
+          action={formAction}
+          className="space-y-3"
+          data-save-all={draft.trim() ? "true" : undefined}
+        >
           <input type="hidden" name="reportId" value={reportId} />
           <input type="hidden" name="date" value={dateKey} />
           <div className="space-y-2">
