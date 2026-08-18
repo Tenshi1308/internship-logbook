@@ -75,6 +75,7 @@ export async function GET(request: Request) {
 
   let fetched = false;
   let warning: string | undefined;
+  let saved: Awaited<ReturnType<typeof cacheCommitsForRepository>> | undefined;
   try {
     const commits = await fetchCommits(token, {
       owner: repository.owner,
@@ -84,7 +85,7 @@ export async function GET(request: Request) {
       page,
       perPage,
     });
-    await cacheCommitsForRepository(user.id, repositoryId, commits);
+    saved = await cacheCommitsForRepository(user.id, repositoryId, commits);
     fetched = true;
   } catch (error) {
     if (error instanceof GitHubError && error.rateLimited) {
@@ -96,6 +97,14 @@ export async function GET(request: Request) {
     }
   }
 
+  if (fetched && saved) {
+    return noStoreJson({
+      commits: saved,
+      fetched: true,
+      hasMore: saved.length === perPage,
+    });
+  }
+
   const cached = await listCachedCommits(
     user.id,
     repositoryId,
@@ -103,7 +112,7 @@ export async function GET(request: Request) {
     until ? new Date(until.getTime() + 86_400_000) : undefined
   );
 
-  if (cached.length === 0 && !fetched && warning) {
+  if (cached.length === 0 && warning) {
     return noStoreJson(
       { error: warning, message: "Gagal mengambil commit dari GitHub." },
       { status: 502 }
@@ -112,8 +121,8 @@ export async function GET(request: Request) {
 
   return noStoreJson({
     commits: cached,
-    fetched,
+    fetched: false,
     warning,
-    hasMore: fetched && cached.length === perPage,
+    hasMore: false,
   });
 }
