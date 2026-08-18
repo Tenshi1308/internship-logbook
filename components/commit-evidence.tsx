@@ -180,7 +180,7 @@ function CommitPicker({ reportId, dateKey }: { reportId: string; dateKey: string
         repositoryId: repoId,
         since,
         until,
-        perPage: "50",
+        perPage: "100",
       });
       const res = await fetch(`/api/github/commits?${params.toString()}`);
       const data = (await res.json()) as {
@@ -271,7 +271,8 @@ function CommitPicker({ reportId, dateKey }: { reportId: string; dateKey: string
       </Button>
 
       {commits.length > 0 ? (
-        <ul className="space-y-2">
+        <div className="max-h-96 space-y-2 overflow-y-auto rounded-md border border-border bg-card p-3">
+          <ul className="space-y-2">
           {commits.map((commit) => {
             const attached = attachedIds.has(commit.id);
             return (
@@ -309,6 +310,7 @@ function CommitPicker({ reportId, dateKey }: { reportId: string; dateKey: string
             );
           })}
         </ul>
+        </div>
       ) : null}
       {!fetching && commits.length === 0 && reposLoaded && repoId ? (
         <p className="text-sm text-muted-foreground">
