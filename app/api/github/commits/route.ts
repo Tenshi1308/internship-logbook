@@ -85,14 +85,67 @@ export async function GET(request: Request) {
       page,
       perPage,
     });
-    saved = await cacheCommitsForRepository(user.id, repositoryId, commits);
-    fetched = true;
+    try {
+      saved = await cacheCommitsForRepository(user.id, repositoryId, commits);
+      fetched = true;
+    } catch (cacheError) {
+      console.error(
+        "[commits] Failed to cache commits for repository",
+        {
+          userId: user.id,
+          repositoryOwner: repository.owner,
+          repositoryName: repository.name,
+          repositoryId,
+          since: since ? since.toISOString() : undefined,
+          until: until ? new Date(until.getTime() + 86_400_000).toISOString() : undefined,
+        },
+        cacheError instanceof Error ? cacheError.stack : cacheError
+      );
+      warning = "github-cache-failed";
+    }
   } catch (error) {
     if (error instanceof GitHubError && error.rateLimited) {
+      console.error(
+        "[commits] GitHub rate limited while fetching commits",
+        {
+          status: error.status,
+          rateLimited: error.rateLimited,
+          message: error.message,
+          repositoryOwner: repository.owner,
+          repositoryName: repository.name,
+          repositoryId,
+          since: since ? since.toISOString() : undefined,
+          until: until ? new Date(until.getTime() + 86_400_000).toISOString() : undefined,
+        }
+      );
       warning = "github-rate-limited";
     } else if (error instanceof GitHubError) {
+      console.error(
+        "[commits] GitHub fetch failed",
+        {
+          status: error.status,
+          rateLimited: error.rateLimited,
+          message: error.message,
+          repositoryOwner: repository.owner,
+          repositoryName: repository.name,
+          repositoryId,
+          since: since ? since.toISOString() : undefined,
+          until: until ? new Date(until.getTime() + 86_400_000).toISOString() : undefined,
+        }
+      );
       warning = "github-fetch-failed";
     } else {
+      console.error(
+        "[commits] Unknown error while fetching commits",
+        {
+          repositoryOwner: repository.owner,
+          repositoryName: repository.name,
+          repositoryId,
+          since: since ? since.toISOString() : undefined,
+          until: until ? new Date(until.getTime() + 86_400_000).toISOString() : undefined,
+        },
+        error instanceof Error ? error.stack : error
+      );
       warning = "github-unknown-error";
     }
   }
