@@ -158,7 +158,7 @@ export async function cacheCommitsForRepository(
 ) {
   await getOwnedRepository(userId, repositoryId);
 
-  return prisma.$transaction(
+  return Promise.all(
     commits.map((commit) =>
       prisma.commit.upsert({
         where: {
