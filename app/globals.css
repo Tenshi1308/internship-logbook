@@ -2,6 +2,9 @@
 
 @theme {
   --font-report: "Times New Roman", Times, serif;
+  /* ICHIGO ICHIE — 一期一会 (ciri khas Ten): serif Mincho untuk judul */
+  --font-serif: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP",
+    "Shippori Mincho", Georgia, serif;
 }
 
 @theme inline {
@@ -40,28 +43,29 @@
   color-scheme: light;
 
   --radius: 0.625rem;
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #0f172a;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-  --accent: #e2e8f0;
-  --accent-foreground: #0f172a;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #64748b;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
+  /* ICHIGO ICHIE — 一期一会: kertas washi, tinta, vermillion hanko */
+  --background: #f6f1e6;
+  --foreground: #2b2a28;
+  --card: #efe8d8;
+  --card-foreground: #2b2a28;
+  --primary: #b03a2e;
+  --primary-foreground: #f6f1e6;
+  --secondary: #e9e0cc;
+  --secondary-foreground: #2b2a28;
+  --muted: #e9e0cc;
+  --muted-foreground: #5a5750;
+  --accent: #e9e0cc;
+  --accent-foreground: #2b2a28;
+  --destructive: #b03a2e;
+  --destructive-foreground: #f6f1e6;
+  --border: #ddd3bd;
+  --input: #cfc4a8;
+  --ring: #b03a2e;
+  --sidebar: #efe8d8;
+  --sidebar-foreground: #2b2a28;
+  --sidebar-border: #ddd3bd;
+  --sidebar-accent: #e9e0cc;
+  --sidebar-accent-foreground: #2b2a28;
 }
 
 @layer base {
@@ -72,14 +76,22 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    /* Tekstur kertas washi yang sangat halus */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
   }
 
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
-    -webkit-text-fill-color: #0f172a;
-    caret-color: #0f172a;
+    -webkit-box-shadow: 0 0 0 1000px #efe8d8 inset;
+    -webkit-text-fill-color: #2b2a28;
+    caret-color: #2b2a28;
     transition: background-color 9999s ease-in-out 0s;
   }
 }
