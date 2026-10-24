@@ -300,7 +300,10 @@ export function shortSha(sha: string): string {
   return sha.length > 7 ? sha.slice(0, 7) : sha;
 }
 
-function rincianBlocks(log: ReportPreview["days"][number] | null): string[] {
+function rincianBlocks(
+  log: ReportPreview["days"][number] | null,
+  includeCommits = true
+): string[] {
   if (!log) return ["-"];
   const description = log.finalDescription?.trim();
   if (description) return [description];
@@ -309,11 +312,14 @@ function rincianBlocks(log: ReportPreview["days"][number] | null): string[] {
     .sort((a, b) => a.order - b.order)
     .map((activity) => activity.description);
   if (activities.length > 0) return activities;
-  if (log.commits.length > 0) return [];
+  if (includeCommits && log.commits.length > 0) return [];
   return ["-"];
 }
 
-function section2Table(report: ReportPreview): Table {
+function section2Table(
+  report: ReportPreview,
+  includeCommits = true
+): Table {
   const grid = SECTION2_GRID;
   const width = grid.reduce((sum, col) => sum + col, 0);
   const rows: TableRow[] = [
@@ -339,10 +345,14 @@ function section2Table(report: ReportPreview): Table {
       year: "numeric",
       timeZone: "UTC",
     }).format(date)}`;
-    const blocks = rincianBlocks(log);
+    const blocks = rincianBlocks(log, includeCommits);
     const paragraphs: Paragraph[] = blocks.map((block) => {
       const children = [bodyRun(block)];
-      if (block === blocks[blocks.length - 1] && log?.commits.length) {
+      if (
+        block === blocks[blocks.length - 1] &&
+        includeCommits &&
+        log?.commits.length
+      ) {
         children.push(bodyRun(""));
       }
       return new Paragraph({
@@ -352,7 +362,7 @@ function section2Table(report: ReportPreview): Table {
       });
     });
 
-    if (log?.commits.length) {
+    if (includeCommits && log?.commits.length) {
       paragraphs.push(
         new Paragraph({
           spacing: paragraphSpacing(),
@@ -468,7 +478,25 @@ function appendixParagraphs(photos: DocgenImage[]): Paragraph[] {
   }
 
   photos.forEach((photo, index) => {
-    const dims = getImageDimensions(photo.data);
+    // Satu foto yang formatnya tidak didukung tidak boleh menggagalkan
+    // seluruh export: lewati fotonya dengan catatan, lanjut ke berikutnya.
+    let dims;
+    try {
+      dims = getImageDimensions(photo.data);
+    } catch {
+      paragraphs.push(
+        new Paragraph({
+          spacing: paragraphSpacing(),
+          alignment: AlignmentType.CENTER,
+          children: [
+            bodyRun(
+              `Gambar ${index + 1} tidak dapat dimuat (format tidak didukung).`
+            ),
+          ],
+        })
+      );
+      return;
+    }
     const isLandscape = dims.width >= dims.height;
     const targetWidth = isLandscape
       ? PHOTO_LANDSCAPE_WIDTH_PX
@@ -515,8 +543,10 @@ function appendixParagraphs(photos: DocgenImage[]): Paragraph[] {
 
 export async function buildReportDocx(
   report: ReportPreview,
-  assets: DocgenAssets
+  assets: DocgenAssets,
+  options?: { includeCommits?: boolean }
 ): Promise<Buffer> {
+  const includeCommits = options?.includeCommits ?? true;
   const documentChildren: (Paragraph | Table)[] = [
     headerTable(assets.logo),
     new Paragraph({ spacing: paragraphSpacing() }),
@@ -541,7 +571,7 @@ export async function buildReportDocx(
     section1Table(report),
     new Paragraph({ spacing: paragraphSpacing() }),
     headingParagraph("Rincian Kegiatan", "sections"),
-    section2Table(report),
+    section2Table(report, includeCommits),
     new Paragraph({ spacing: paragraphSpacing() }),
     headingParagraph("Rencana Kegiatan Untuk Minggu Depan", "sections"),
     ...(letterItems(report.nextWeekPlan).length > 0

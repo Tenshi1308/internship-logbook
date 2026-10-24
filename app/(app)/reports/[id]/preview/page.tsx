@@ -28,6 +28,7 @@ export default async function ReportPreviewPage({
     <div className="space-y-4 print:space-y-0">
       <PreviewToolbar
         reportHref={`/reports/${preview.id}`}
+        reportId={preview.id}
         status={preview.status}
       />
       <ScaledPreview>

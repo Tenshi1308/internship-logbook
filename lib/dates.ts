@@ -2,8 +2,18 @@ const DATE_ONLY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function parseDateOnly(value: string): Date | null {
   if (!DATE_ONLY_RE.test(value)) return null;
-  const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime()) ? null : date;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  // JavaScript "menggulung" tanggal yang meluber (30 Feb -> 2 Mar);
+  // tolak bila komponen hasil parse tidak sama dengan input.
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return date;
 }
 
 export function toDateOnly(date: Date): string {

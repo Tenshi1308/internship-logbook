@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 import { dayNumber } from "@/lib/dates";
 
 export class ReportNotFoundError extends Error {
@@ -124,12 +125,38 @@ export async function updatePlanEvaluationForUser(
 }
 
 export async function deleteReportForUser(userId: string, reportId: string) {
+  // Ambil dulu daftar foto agar aset Cloudinary-nya bisa dibersihkan:
+  // cascade DB saja tidak menghapus file remote-nya.
+  const existing = await prisma.weeklyReport.findFirst({
+    where: { id: reportId, userId },
+    select: {
+      documentationPhotos: { select: { cloudinaryPublicId: true } },
+    },
+  });
+  if (!existing) {
+    throw new ReportNotFoundError();
+  }
+
   const result = await prisma.weeklyReport.deleteMany({
     where: { id: reportId, userId },
   });
   if (result.count === 0) {
     throw new ReportNotFoundError();
   }
+
+  // Best-effort: kegagalan hapus remote tidak boleh menggagalkan hapus
+  // laporan (pola yang sama dengan hapus satu foto).
+  await Promise.all(
+    existing.documentationPhotos.map(
+      async (photo: { cloudinaryPublicId: string }) => {
+      try {
+        await deleteCloudinaryImage(photo.cloudinaryPublicId);
+      } catch {
+        // Aset remote yang tertinggal dibiarkan; data aplikasi tetap konsisten.
+      }
+    })
+  );
+
   return result;
 }
 

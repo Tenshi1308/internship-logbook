@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
+import { ExportDocxButton } from "@/components/export-docx-button";
 import { PrintPreviewButton } from "@/components/print-preview-button";
 import { StatusBadge } from "@/components/status-badge";
 
 export function PreviewToolbar({
   reportHref,
+  reportId,
   status,
 }: {
   reportHref: string;
+  reportId: string;
   status: "DRAFT" | "COMPLETED";
 }) {
   return (
@@ -23,7 +26,10 @@ export function PreviewToolbar({
         </Link>
         <StatusBadge status={status} />
       </div>
-      <PrintPreviewButton />
+      <div className="flex flex-wrap items-center gap-2">
+        <ExportDocxButton reportId={reportId} />
+        <PrintPreviewButton />
+      </div>
     </div>
   );
 }

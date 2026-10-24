@@ -15,13 +15,16 @@ const PHOTO_FETCH_TIMEOUT_MS = 10_000;
 
 async function fetchPhotoBuffer(url: string): Promise<Buffer | null> {
   if (!url) return null;
+  // Foto tersimpan di Cloudinary; minta varian PNG agar format apa pun
+  // (termasuk WebP) bisa diproses export DOCX yang hanya kenal PNG/JPG.
+  const deliveryUrl = toPngDeliveryUrl(url);
   const controller = new AbortController();
   const timeout = setTimeout(
     () => controller.abort(),
     PHOTO_FETCH_TIMEOUT_MS
   );
   try {
-    const response = await fetch(url, {
+    const response = await fetch(deliveryUrl, {
       signal: controller.signal,
       redirect: "follow",
     });
@@ -38,13 +41,24 @@ async function fetchPhotoBuffer(url: string): Promise<Buffer | null> {
   }
 }
 
+// Ubah URL delivery Cloudinary menjadi varian PNG (transformasi f_png).
+// URL non-Cloudinary dibiarkan apa adanya.
+function toPngDeliveryUrl(url: string): string {
+  const marker = "/upload/";
+  const index = url.indexOf(marker);
+  if (index === -1) return url;
+  const rest = url.slice(index + marker.length);
+  if (rest.startsWith("f_") || rest.startsWith("f_png")) return url;
+  return `${url.slice(0, index + marker.length)}f_png/${rest}`;
+}
+
 function sanitizeFilename(value: string): string {
   const cleaned = value.replace(/[^a-zA-Z0-9._-]/g, "-");
   return cleaned.replace(/-+/g, "-").replace(/^-|-$/g, "") || "report";
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const user = await getCurrentUser();
@@ -53,6 +67,11 @@ export async function GET(
   }
 
   const { id: reportId } = await params;
+
+  // Saklar bukti commit: ?includeCommits=false menghilangkan seksi
+  // "Bukti GitHub" dari DOCX tanpa harus disconnect GitHub.
+  const includeCommits =
+    new URL(request.url).searchParams.get("includeCommits") !== "false";
 
   const report = await getReportPreviewForUser(user.id, reportId);
   if (!report) {
@@ -90,7 +109,7 @@ export async function GET(
 
   let buffer: Buffer;
   try {
-    buffer = await buildReportDocx(report, assets);
+    buffer = await buildReportDocx(report, assets, { includeCommits });
   } catch {
     return NextResponse.json(
       { error: "export-failed", message: "Gagal membuat file laporan." },
