@@ -47,7 +47,9 @@ export const TABLE_BORDERS = {
 
 export const HEADER_GRID = [1809, 8789];
 export const SECTION1_GRID = [813, 1590, 3167, 2614];
-export const SECTION2_GRID = [514, 2277, 3021, 4820];
+// Total 10467 = lebar kolom teks (11907 - 2 x 720), sama dengan blok heading
+// berwarna, agar tabel section 2 tidak meluber ke kanan.
+export const SECTION2_GRID = [506, 2242, 2974, 4745];
 
 export const LOGO_WIDTH_PX = 86;
 export const LOGO_HEIGHT_PX = 85;

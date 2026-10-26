@@ -8,6 +8,7 @@ import {
   Paragraph,
   Table,
   TableCell,
+  TableLayoutType,
   TableRow,
   TextRun,
   VerticalMergeType,
@@ -268,7 +269,7 @@ function section1Table(report: ReportPreview): Table {
       new TableRow({
         children: [
           dataCell(String(index + 1), grid[0], true),
-          dataCell(weekdayOf(date), grid[1]),
+          dataCell(weekdayOf(date), grid[1], true),
           dataCell(
             new Intl.DateTimeFormat("id-ID", {
               day: "numeric",
@@ -276,7 +277,8 @@ function section1Table(report: ReportPreview): Table {
               year: "numeric",
               timeZone: "UTC",
             }).format(date),
-            grid[2]
+            grid[2],
+            true
           ),
           dataCell(
             timeRange(log?.startTime ?? "", log?.endTime ?? ""),
@@ -291,6 +293,8 @@ function section1Table(report: ReportPreview): Table {
   return new Table({
     width: { size: width, type: WidthType.DXA },
     columnWidths: grid,
+    alignment: AlignmentType.CENTER,
+    layout: TableLayoutType.FIXED,
     borders: TABLE_BORDERS,
     rows,
   });
@@ -388,8 +392,8 @@ function section2Table(
       new TableRow({
         children: [
           dataCell(String(index + 1), grid[0], true),
-          dataCell(dayLabel, grid[1]),
-          dataCell(log?.location || "-", grid[2]),
+          dataCell(dayLabel, grid[1], true),
+          dataCell(log?.location || "-", grid[2], true),
           new TableCell({
             width: { size: grid[3], type: WidthType.DXA },
             borders: {
@@ -414,6 +418,8 @@ function section2Table(
   return new Table({
     width: { size: width, type: WidthType.DXA },
     columnWidths: grid,
+    alignment: AlignmentType.CENTER,
+    layout: TableLayoutType.FIXED,
     borders: TABLE_BORDERS,
     rows,
   });
